@@ -17,7 +17,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Management.Infrastructure;
-using Microsoft.PowerShell.Telemetry;
 
 using Dbg = System.Management.Automation.Diagnostics;
 
@@ -640,7 +639,6 @@ namespace System.Management.Automation
             Streams = new PSDataStreams(this);
             _endInvokeMethod = EndInvoke;
             _endStopMethod = EndStop;
-            ApplicationInsightsTelemetry.SendTelemetryMetric(TelemetryType.PowerShellCreate, "create");
         }
 
         /// <summary>

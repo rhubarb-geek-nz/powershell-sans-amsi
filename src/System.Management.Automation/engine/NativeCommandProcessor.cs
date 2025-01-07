@@ -19,7 +19,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.PowerShell.Telemetry;
 using Dbg = System.Management.Automation.Diagnostics;
 
 namespace System.Management.Automation
@@ -544,11 +543,6 @@ namespace System.Management.Automation
             // Get the start info for the process.
             ProcessStartInfo startInfo = GetProcessStartInfo(redirectOutput, redirectError, redirectInput, soloCommand);
 
-            // Send Telemetry indicating what argument passing mode we are in.
-            ApplicationInsightsTelemetry.SendExperimentalUseData(
-                "PSWindowsNativeCommandArgPassing",
-                NativeParameterBinderController.ArgumentPassingStyle.ToString());
-
 #if !UNIX
             string commandPath = this.Path.ToLowerInvariant();
             if (commandPath.EndsWith("powershell.exe") || commandPath.EndsWith("powershell_ise.exe"))
@@ -959,12 +953,8 @@ namespace System.Management.Automation
                     // The variable is unset
                     if (useDefaultSetting)
                     {
-                        ApplicationInsightsTelemetry.SendExperimentalUseData("PSNativeCommandErrorActionPreference", "unset");
                         return;
                     }
-
-                    // Send the value that was set.
-                    ApplicationInsightsTelemetry.SendExperimentalUseData("PSNativeCommandErrorActionPreference", nativeErrorActionPreferenceSetting.ToString());
 
                     // if it was explicitly set to false, return
                     if (!nativeErrorActionPreferenceSetting)

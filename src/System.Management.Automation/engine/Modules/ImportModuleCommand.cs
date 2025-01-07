@@ -20,16 +20,11 @@ using System.Threading;
 
 using Microsoft.Management.Infrastructure;
 using Microsoft.PowerShell.Cmdletization;
-using Microsoft.PowerShell.Telemetry;
 
 using Dbg = System.Management.Automation.Diagnostics;
 using Parser = System.Management.Automation.Language.Parser;
 using ScriptBlock = System.Management.Automation.ScriptBlock;
 using Token = System.Management.Automation.Language.Token;
-
-#if LEGACYTELEMETRY
-using Microsoft.PowerShell.Telemetry.Internal;
-#endif
 
 //
 // Now define the set of commands for manipulating modules.
@@ -614,16 +609,6 @@ namespace Microsoft.PowerShell.Commands
             if (foundModule != null)
             {
                 SetModuleBaseForEngineModules(foundModule.Name, this.Context);
-
-                // report loading of the module in telemetry
-                // avoid double reporting for WinCompat modules that go through CommandDiscovery\AutoloadSpecifiedModule
-                if (!foundModule.IsWindowsPowerShellCompatModule)
-                {
-                    ApplicationInsightsTelemetry.SendModuleTelemetryMetric(TelemetryType.ModuleLoad, foundModule);
-#if LEGACYTELEMETRY
-                    TelemetryAPI.ReportModuleLoad(foundModule);
-#endif
-                }
             }
 
             return foundModule;
@@ -893,7 +878,6 @@ namespace Microsoft.PowerShell.Commands
 
             if (foundModule != null)
             {
-                ApplicationInsightsTelemetry.SendModuleTelemetryMetric(TelemetryType.ModuleLoad, foundModule);
                 SetModuleBaseForEngineModules(foundModule.Name, this.Context);
             }
 
@@ -930,12 +914,6 @@ namespace Microsoft.PowerShell.Commands
                     var tmp = ImportModule_RemotelyViaPsrpSession(importModuleOptions, null, fullyQualifiedName, psSession);
                     remotelyImportedModules.AddRange(tmp);
                 }
-            }
-
-            // Send telemetry on the imported modules
-            foreach (PSModuleInfo moduleInfo in remotelyImportedModules)
-            {
-                ApplicationInsightsTelemetry.SendModuleTelemetryMetric(usingWinCompat ? TelemetryType.WinCompatModuleLoad : TelemetryType.ModuleLoad, moduleInfo);
             }
 
             return remotelyImportedModules;
@@ -1366,8 +1344,6 @@ namespace Microsoft.PowerShell.Commands
             foreach (RemoteDiscoveryHelper.CimModule remoteCimModule in remotePsCimModules)
             {
                 ImportModule_RemotelyViaCimModuleData(importModuleOptions, remoteCimModule, cimSession);
-                // we don't know the version of the module
-                ApplicationInsightsTelemetry.SendModuleTelemetryMetric(TelemetryType.ModuleLoad, remoteCimModule.ModuleName);
             }
         }
 
@@ -1866,7 +1842,6 @@ namespace Microsoft.PowerShell.Commands
                 // of doing Get-Module -list
                 foreach (PSModuleInfo module in ModuleInfo)
                 {
-                    ApplicationInsightsTelemetry.SendModuleTelemetryMetric(TelemetryType.ModuleLoad, module);
                     RemoteDiscoveryHelper.DispatchModuleInfoProcessing(
                         module,
                         localAction: () =>
@@ -1894,8 +1869,6 @@ namespace Microsoft.PowerShell.Commands
                 // Now load all of the supplied assemblies...
                 foreach (Assembly suppliedAssembly in Assembly)
                 {
-                    // we don't know what the version of the module is.
-                    ApplicationInsightsTelemetry.SendModuleTelemetryMetric(TelemetryType.ModuleLoad, suppliedAssembly.GetName().Name);
                     ImportModule_ViaAssembly(importModuleOptions, suppliedAssembly);
                 }
             }
@@ -1924,10 +1897,6 @@ namespace Microsoft.PowerShell.Commands
             else if (this.ParameterSetName.Equals(ParameterSet_FQName_ViaPsrpSession, StringComparison.OrdinalIgnoreCase))
             {
                 ImportModule_RemotelyViaPsrpSession(importModuleOptions, null, FullyQualifiedName, this.PSSession);
-                foreach (ModuleSpecification modulespec in FullyQualifiedName)
-                {
-                    ApplicationInsightsTelemetry.SendModuleTelemetryMetric(TelemetryType.ModuleLoad, modulespec.Name);
-                }
             }
             else if (this.ParameterSetName.Equals(ParameterSet_ViaWinCompat, StringComparison.OrdinalIgnoreCase)
                   || this.ParameterSetName.Equals(ParameterSet_FQName_ViaWinCompat, StringComparison.OrdinalIgnoreCase))

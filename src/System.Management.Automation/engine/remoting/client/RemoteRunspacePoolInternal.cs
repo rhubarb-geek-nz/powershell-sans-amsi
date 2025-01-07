@@ -10,12 +10,8 @@ using System.Management.Automation.Remoting;
 using System.Management.Automation.Remoting.Client;
 using System.Management.Automation.Tracing;
 using System.Threading;
-using Microsoft.PowerShell.Telemetry;
 
 using Dbg = System.Management.Automation.Diagnostics;
-#if LEGACYTELEMETRY
-using Microsoft.PowerShell.Telemetry.Internal;
-#endif
 
 namespace System.Management.Automation.Runspaces.Internal
 {
@@ -841,12 +837,6 @@ namespace System.Management.Automation.Runspaces.Internal
             PSEtwLog.SetActivityIdForCurrentThread(this.InstanceId);
             PSEtwLog.LogOperationalVerbose(PSEventId.RunspacePoolOpen, PSOpcode.Open,
                             PSTask.CreateRunspace, PSKeyword.UseAlwaysOperational);
-
-            // Telemetry here - remote session
-            ApplicationInsightsTelemetry.SendTelemetryMetric(TelemetryType.RemoteSessionOpen, isAsync.ToString());
-#if LEGACYTELEMETRY
-            TelemetryAPI.ReportRemoteSessionCreated(_connectionInfo);
-#endif
 
             lock (syncObject)
             {

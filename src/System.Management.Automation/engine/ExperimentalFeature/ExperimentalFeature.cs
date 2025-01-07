@@ -9,7 +9,6 @@ using System.Management.Automation.Configuration;
 using System.Management.Automation.Internal;
 using System.Management.Automation.Tracing;
 using System.Runtime.CompilerServices;
-using Microsoft.PowerShell.Telemetry;
 
 namespace System.Management.Automation
 {
@@ -150,20 +149,6 @@ namespace System.Management.Automation
         }
 
         /// <summary>
-        /// We need to notify which features were not enabled.
-        /// </summary>
-        private static void SendTelemetryForDeactivatedFeatures(ReadOnlyBag<string> enabledFeatures)
-        {
-            foreach (var feature in EngineExperimentalFeatures)
-            {
-                if (!enabledFeatures.Contains(feature.Name))
-                {
-                    ApplicationInsightsTelemetry.SendTelemetryMetric(TelemetryType.ExperimentalEngineFeatureDeactivation, feature.Name);
-                }
-            }
-        }
-
-        /// <summary>
         /// Process the array of enabled feature names retrieved from configuration.
         /// Ignore invalid feature names and unavailable engine feature names, and
         /// return an ReadOnlyBag of the valid enabled feature names.
@@ -181,7 +166,6 @@ namespace System.Management.Automation
                 if (IsModuleFeatureName(name))
                 {
                     list.Add(name);
-                    ApplicationInsightsTelemetry.SendTelemetryMetric(TelemetryType.ExperimentalModuleFeatureActivation, name);
                 }
                 else if (IsEngineFeatureName(name))
                 {
@@ -189,7 +173,6 @@ namespace System.Management.Automation
                     {
                         feature.Enabled = true;
                         list.Add(name);
-                        ApplicationInsightsTelemetry.SendTelemetryMetric(TelemetryType.ExperimentalEngineFeatureActivation, name);
                     }
                     else
                     {
@@ -205,7 +188,6 @@ namespace System.Management.Automation
             }
 
             ReadOnlyBag<string> features = new(new HashSet<string>(list, StringComparer.OrdinalIgnoreCase));
-            SendTelemetryForDeactivatedFeatures(features);
             return features;
         }
 

@@ -364,9 +364,6 @@ namespace Microsoft.PowerShell.Commands
         /// </summary>
         protected override void BeginProcessing()
         {
-#if LEGACYTELEMETRY
-            _timer.Start();
-#endif
             if (UseFuzzyMatching)
             {
                 _fuzzyMatcher = new FuzzyMatcher(FuzzyMinimumDistance);
@@ -558,21 +555,6 @@ namespace Microsoft.PowerShell.Commands
 
                 count += 1;
             }
-
-#if LEGACYTELEMETRY
-            _timer.Stop();
-
-            // No telemetry here - capturing the name of a command which we are not familiar with
-            // may be confidential customer information
-            // We want telemetry on commands people look for but don't exist - this should give us an idea
-            // what sort of commands people expect but either don't exist, or maybe should be installed by default.
-            // The StartsWith is to avoid logging telemetry when suggestion mode checks the
-            // current directory for scripts/exes in the current directory and '.' is not in the path.
-            if (count == 0 && Name != null && Name.Length > 0 && !Name[0].StartsWith(".\\", StringComparison.OrdinalIgnoreCase))
-            {
-                Telemetry.Internal.TelemetryAPI.ReportGetCommandFailed(Name, _timer.ElapsedMilliseconds);
-            }
-#endif
         }
 
         /// <summary>
@@ -1529,9 +1511,6 @@ namespace Microsoft.PowerShell.Commands
         private Collection<WildcardPattern> _nounPatterns;
         private Collection<WildcardPattern> _modulePatterns;
 
-#if LEGACYTELEMETRY
-        private Stopwatch _timer = new Stopwatch();
-#endif
         #endregion
 
         #region ShowCommandInfo support

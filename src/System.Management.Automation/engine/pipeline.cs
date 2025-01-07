@@ -7,7 +7,6 @@ using System.Management.Automation.Runspaces;
 using System.Management.Automation.Tracing;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
-using Microsoft.PowerShell.Telemetry;
 
 using Dbg = System.Management.Automation.Diagnostics;
 
@@ -44,8 +43,6 @@ namespace System.Management.Automation.Internal
         private bool _linkedErrorOutput = false;
 
         private NativeCommandProcessor _lastNativeCommand;
-
-        private bool _haveReportedNativePipeUsage;
 
 #if !CORECLR // Impersonation Not Supported On CSS
         // This is the security context when the pipeline was allocated
@@ -265,13 +262,6 @@ namespace System.Management.Automation.Internal
             {
                 if (_lastNativeCommand is not null)
                 {
-                    // Only report experimental feature usage once per pipeline.
-                    if (!_haveReportedNativePipeUsage)
-                    {
-                        ApplicationInsightsTelemetry.SendExperimentalUseData("PSNativeCommandPreserveBytePipe", "p");
-                        _haveReportedNativePipeUsage = true;
-                    }
-
                     _lastNativeCommand.DownStreamNativeCommand = nativeCommand;
                     nativeCommand.UpstreamIsNativeCommand = true;
                 }
@@ -1096,10 +1086,6 @@ namespace System.Management.Automation.Internal
                     commandProcessor.Context,
                     CommandState.Started,
                     commandProcessor.Command.MyInvocation);
-
-#if LEGACYTELEMETRY
-                Microsoft.PowerShell.Telemetry.Internal.TelemetryAPI.TraceExecutedCommand(commandProcessor.Command.CommandInfo, commandProcessor.Command.CommandOrigin);
-#endif
 
                 // Log the execution of a command (not script chunks, as they are not commands in and of themselves)
                 if (commandProcessor.CommandInfo.CommandType != CommandTypes.Script)

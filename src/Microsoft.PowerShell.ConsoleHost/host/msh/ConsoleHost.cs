@@ -25,10 +25,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Microsoft.PowerShell.Commands;
-using Microsoft.PowerShell.Telemetry;
-#if LEGACYTELEMETRY
-using Microsoft.PowerShell.Telemetry.Internal;
-#endif
 using ConsoleHandle = Microsoft.Win32.SafeHandles.SafeFileHandle;
 using Dbg = System.Management.Automation.Diagnostics;
 using Debugger = System.Management.Automation.Debugger;
@@ -43,9 +39,6 @@ namespace Microsoft.PowerShell
         :
         PSHost,
         IDisposable,
-#if LEGACYTELEMETRY
-        IHostProvidesTelemetryData,
-#endif
         IHostSupportsInteractiveSession
     {
         #region static methods
@@ -200,7 +193,6 @@ namespace Microsoft.PowerShell
                 // First check for and handle PowerShell running in a server mode.
                 if (s_cpp.ServerMode)
                 {
-                    ApplicationInsightsTelemetry.SendPSCoreStartupTelemetry("ServerMode", s_cpp.ParametersUsedAsDouble);
                     ProfileOptimization.StartProfile("StartupProfileData-ServerMode");
                     StdIOProcessMediator.Run(
                         initialCommand: s_cpp.InitialCommand,
@@ -212,7 +204,6 @@ namespace Microsoft.PowerShell
                 }
                 else if (s_cpp.SSHServerMode)
                 {
-                    ApplicationInsightsTelemetry.SendPSCoreStartupTelemetry("SSHServer", s_cpp.ParametersUsedAsDouble);
                     ProfileOptimization.StartProfile("StartupProfileData-SSHServerMode");
                     StdIOProcessMediator.Run(
                         initialCommand: s_cpp.InitialCommand,
@@ -224,7 +215,6 @@ namespace Microsoft.PowerShell
                 }
                 else if (s_cpp.NamedPipeServerMode)
                 {
-                    ApplicationInsightsTelemetry.SendPSCoreStartupTelemetry("NamedPipe", s_cpp.ParametersUsedAsDouble);
                     ProfileOptimization.StartProfile("StartupProfileData-NamedPipeServerMode");
                     RemoteSessionNamedPipeServer.RunServerMode(
                         configurationName: s_cpp.ConfigurationName);
@@ -232,7 +222,6 @@ namespace Microsoft.PowerShell
                 }
                 else if (s_cpp.SocketServerMode)
                 {
-                    ApplicationInsightsTelemetry.SendPSCoreStartupTelemetry("SocketServerMode", s_cpp.ParametersUsedAsDouble);
                     ProfileOptimization.StartProfile("StartupProfileData-SocketServerMode");
                     HyperVSocketMediator.Run(
                         initialCommand: s_cpp.InitialCommand,
@@ -266,9 +255,6 @@ namespace Microsoft.PowerShell
                     s_theConsoleHost.BindBreakHandler();
                     PSHost.IsStdOutputRedirected = Console.IsOutputRedirected;
 
-                    // Send startup telemetry for ConsoleHost startup
-                    ApplicationInsightsTelemetry.SendPSCoreStartupTelemetry("Normal", s_cpp.ParametersUsedAsDouble);
-
                     exitCode = s_theConsoleHost.Run(s_cpp, false);
                 }
             }
@@ -277,9 +263,6 @@ namespace Microsoft.PowerShell
 #pragma warning disable IDE0031
                 if (s_theConsoleHost != null)
                 {
-#if LEGACYTELEMETRY
-                    TelemetryAPI.ReportExitTelemetry(s_theConsoleHost);
-#endif
 #if UNIX
                     if (s_theConsoleHost.IsInteractive && s_theConsoleHost.UI.SupportsVirtualTerminal)
                     {
@@ -1145,26 +1128,6 @@ namespace Microsoft.PowerShell
             }
         }
 
-#if LEGACYTELEMETRY
-        bool IHostProvidesTelemetryData.HostIsInteractive
-        {
-            get
-            {
-                return !s_cpp.NonInteractive && !s_cpp.AbortStartup &&
-                       ((s_cpp.InitialCommand == null && s_cpp.File == null) || s_cpp.NoExit);
-            }
-        }
-
-        double IHostProvidesTelemetryData.ProfileLoadTimeInMS { get { return _profileLoadTimeInMS; } }
-
-        double IHostProvidesTelemetryData.ReadyForInputTimeInMS { get { return _readyForInputTimeInMS; } }
-
-        int IHostProvidesTelemetryData.InteractiveCommandCount { get { return _interactiveCommandCount; } }
-
-        private double _readyForInputTimeInMS;
-        private int _interactiveCommandCount;
-#endif
-
         private double _profileLoadTimeInMS;
 
         #endregion overrides
@@ -1768,11 +1731,6 @@ namespace Microsoft.PowerShell
                                                    PSTask.PowershellConsoleStartup, PSKeyword.UseAlwaysOperational);
             }
 
-#if LEGACYTELEMETRY
-            // Record how long it took from process start to runspace open for telemetry.
-            _readyForInputTimeInMS = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalMilliseconds;
-#endif
-
             DoRunspaceInitialization(args);
         }
 
@@ -1924,11 +1882,6 @@ namespace Microsoft.PowerShell
                     s_tracer.WriteLine("-noprofile option specified: skipping profiles");
                 }
             }
-#if LEGACYTELEMETRY
-            // Startup is reported after possibly running the profile, but before running the initial command (or file)
-            // if one is specified.
-            TelemetryAPI.ReportStartupTelemetry(this);
-#endif
 
             // If a file was specified as the argument to run, then run it...
             if (s_cpp != null && s_cpp.File != null)
@@ -2723,11 +2676,6 @@ namespace Microsoft.PowerShell
                                     _parent.PopRunspace();
                                 }
                             }
-
-#if LEGACYTELEMETRY
-                            if (!inBlockMode)
-                                s_theConsoleHost._interactiveCommandCount += 1;
-#endif
                         }
                     }
                     // NTRAID#Windows Out Of Band Releases-915506-2005/09/09

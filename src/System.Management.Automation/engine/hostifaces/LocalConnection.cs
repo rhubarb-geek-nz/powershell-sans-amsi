@@ -17,9 +17,6 @@ using System.Threading;
 using Microsoft.PowerShell.Commands;
 
 using Dbg = System.Management.Automation.Diagnostics;
-#if LEGACYTELEMETRY
-using Microsoft.PowerShell.Telemetry.Internal;
-#endif
 
 #pragma warning disable 1634, 1691 // Stops compiler from warning about unknown warnings
 
@@ -714,10 +711,6 @@ namespace System.Management.Automation.Runspaces
                 // caller of open will catch it.
                 throw initError;
             }
-
-#if LEGACYTELEMETRY
-            TelemetryAPI.ReportLocalSessionCreated(InitialSessionState, TranscriptionData);
-#endif
         }
 
         /// <summary>
@@ -896,32 +889,6 @@ namespace System.Management.Automation.Runspaces
                     }
                 }
             }
-
-            // Report telemetry if we have no more open runspaces.
-#if LEGACYTELEMETRY
-            bool allRunspacesClosed = true;
-            bool hostProvidesExitTelemetry = false;
-            foreach (var r in Runspace.RunspaceList)
-            {
-                if (r.RunspaceStateInfo.State != RunspaceState.Closed)
-                {
-                    allRunspacesClosed = false;
-                    break;
-                }
-
-                var localRunspace = r as LocalRunspace;
-                if (localRunspace != null && localRunspace.Host is IHostProvidesTelemetryData)
-                {
-                    hostProvidesExitTelemetry = true;
-                    break;
-                }
-            }
-
-            if (allRunspacesClosed && !hostProvidesExitTelemetry)
-            {
-                TelemetryAPI.ReportExitTelemetry(null);
-            }
-#endif
         }
 
         /// <summary>
