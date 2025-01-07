@@ -811,11 +811,6 @@ namespace Microsoft.PowerShell
                 {
                     hostUI.WriteLine(bannerText);
                 }
-
-                if (UpdatesNotification.CanNotifyUpdates)
-                {
-                    UpdatesNotification.ShowUpdateNotification(hostUI);
-                }
             }
         }
 
