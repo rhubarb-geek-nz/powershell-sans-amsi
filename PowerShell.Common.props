@@ -134,8 +134,8 @@
   </Target>
 
   <PropertyGroup>
-    <Product>PowerShell</Product>
-    <Company>Microsoft Corporation</Company>
+    <Product>PowerShell sans AMSI</Product>
+    <Company>rhubarb-geek-nz</Company>
     <Copyright>(c) Microsoft Corporation.</Copyright>
 
     <TargetFramework>net8.0</TargetFramework>

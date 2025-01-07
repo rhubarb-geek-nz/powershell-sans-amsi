@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "rhubarb-geek-nz.dir2wxs": {
+      "version": "1.0.2",
+      "commands": [
+        "dir2wxs"
+      ]
+    }
+  }
+}
