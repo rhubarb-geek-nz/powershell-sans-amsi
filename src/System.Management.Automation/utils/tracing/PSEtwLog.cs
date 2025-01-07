@@ -119,16 +119,6 @@ namespace System.Management.Automation.Tracing
         }
 
         /// <summary>
-        /// Provider interface function for logging AmsiUtil State event.
-        /// </summary>
-        /// <param name="state">This the action performed in AmsiUtil class, like init, scan, etc.</param>
-        /// <param name="context">The amsiContext handled - Session pair.</param>
-        internal static void LogAmsiUtilStateEvent(string state, string context)
-        {
-            provider.LogAmsiUtilStateEvent(state, context);
-        }
-
-        /// <summary>
         /// Provider interface function for logging WDAC query event.
         /// </summary>
         /// <param name="queryName">Name of the WDAC query.</param>
