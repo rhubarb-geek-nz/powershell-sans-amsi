@@ -43,10 +43,6 @@ namespace System.Management.Automation.Runspaces
             //   * have high disk cost
 
             // We shouldn't create too many tasks.
-#if !UNIX
-            // Amsi initialize can be a little slow.
-            Task.Run(() => AmsiUtils.WinScanContent(content: string.Empty, sourceMetadata: string.Empty, warmUp: true));
-#endif
             // Initialize the types 'Compiler', 'CachedReflectionInfo', and 'ExpressionCache'.
             // Their type initializers do a lot of reflection operations.
             // We will access 'Compiler' members when creating the first session state.

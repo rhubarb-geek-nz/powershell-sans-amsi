@@ -312,10 +312,6 @@ namespace System.Management.Automation.Runspaces
             Dbg.Assert(command != null, "Command cannot be null");
             InstanceId = runspace.GeneratePipelineId();
             Commands = command;
-
-            // Reset the AMSI session so that it is re-initialized
-            // when the next script block is parsed.
-            AmsiUtils.CloseSession();
         }
 
         #endregion constructor

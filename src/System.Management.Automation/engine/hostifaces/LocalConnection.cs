@@ -827,7 +827,7 @@ namespace System.Management.Automation.Runspaces
             // When closing the primary runspace, ensure all other local runspaces are closed.
             var closeAllOpenRunspaces = isPrimaryRunspace && haveOpenRunspaces;
 
-            // Stop all transcriptions and un-initialize AMSI if we're the last runspace to exit or we are exiting the primary runspace.
+            // Stop all transcriptions if we're the last runspace to exit or we are exiting the primary runspace.
             if (!haveOpenRunspaces)
             {
                 ExecutionContext executionContext = this.GetExecutionContext;
@@ -836,8 +836,6 @@ namespace System.Management.Automation.Runspaces
                     PSHostUserInterface hostUI = executionContext.EngineHostInterface.UI;
                     hostUI?.StopAllTranscribing();
                 }
-
-                AmsiUtils.Uninitialize();
             }
 
             // Generate the shutdown event
