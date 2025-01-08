@@ -46,7 +46,7 @@ if ( -not ( Test-Path -LiteralPath 'amsi' ))
 	Expand-Archive 'amsi-1.0.0.zip' -DestinationPath 'amsi'
 }
 
-$DotNetAppRuntime = "$($Env:ProgramFiles)\dotnet\shared\Microsoft.NETCore.App\8.0.8"
+$DotNetAppRuntime = "$($Env:ProgramFiles)\dotnet\shared\Microsoft.NETCore.App\8.0.11"
 
 if ( -not ( Test-Path -LiteralPath $DotNetAppRuntime -PathType Container ) )
 {
