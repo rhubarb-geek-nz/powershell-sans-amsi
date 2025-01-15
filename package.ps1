@@ -50,7 +50,7 @@ if ($IsWindows)
 		Expand-Archive 'amsi-1.0.0.zip' -DestinationPath 'amsi'
 	}
 
-	$DotNetAppRuntime = "$($Env:ProgramFiles)\dotnet\shared\Microsoft.NETCore.App\8.0.11"
+	$DotNetAppRuntime = "$($Env:ProgramFiles)\dotnet\shared\Microsoft.NETCore.App\8.0.12"
 
 	if ( -not ( Test-Path -LiteralPath $DotNetAppRuntime -PathType Container ) )
 	{
@@ -375,7 +375,7 @@ Vendor: Microsoft Corporation
 Architecture: $($Arch.Arch)
 Maintainer: $Maintainer
 Installed-Size: $Size
-Depends: dotnet-runtime-8.0 (>= 8.0.11)
+Depends: dotnet-runtime-8.0 (>= 8.0.12)
 Section: shells
 Priority: optional
 Homepage: https://microsoft.com/powershell

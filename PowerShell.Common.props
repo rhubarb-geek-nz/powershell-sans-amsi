@@ -172,8 +172,8 @@
 
   <!-- Define all OS, release configuration properties -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <PublishReadyToRunEmitSymbols>true</PublishReadyToRunEmitSymbols>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <PublishReadyToRunEmitSymbols>false</PublishReadyToRunEmitSymbols>
     <Optimize>true</Optimize>
     <DebugType>portable</DebugType>
   </PropertyGroup>

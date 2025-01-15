@@ -481,13 +481,7 @@ Fix steps:
         $Arguments += "/property:IsWindows=false"
     }
 
-    # Framework Dependent builds do not support ReadyToRun as it needs a specific runtime to optimize for.
-    # The property is set in Powershell.Common.props file.
-    # We override the property through the build command line.
-    if(($Options.Runtime -like 'fxdependent*' -or $ForMinimalSize) -and $Options.Runtime -notmatch $optimizedFddRegex) {
-        $Arguments += "/property:PublishReadyToRun=false"
-    }
-
+    $Arguments += "/property:PublishReadyToRun=false"
     $Arguments += "--configuration", $Options.Configuration
     $Arguments += "--framework", $Options.Framework
 
